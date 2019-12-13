@@ -1,0 +1,29 @@
+steps:
+  - name: 'gcr.io/cloud-builders/docker'
+    id: Build docker image
+    entrypoint: docker
+    dir: docker/locust
+    args: [
+      'build',
+      '-t',
+      'your repos:latest',
+      '.'
+    ]
+  - name: 'gcr.io/cloud-builders/docker'
+    id: Attach docker tag
+    entrypoint: docker
+    dir: docker/locust
+    args: [
+      'tag',
+      'your repost:latest',
+      'your repost:latest'
+    ]
+  - name: 'gcr.io/cloud-builders/docker'
+    id: Push docker image
+    entrypoint: docker
+    dir: docker/locust
+    args: [
+      'push',
+      'your repost:latest'
+    ]
+timeout: 600s

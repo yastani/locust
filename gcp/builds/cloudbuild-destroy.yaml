@@ -1,0 +1,78 @@
+steps:
+  - name: 'gcr.io/*****/terraform:0.11.14'
+    id: Terraform Init
+    entrypoint: terraform
+    dir: terraform
+    args: ['init']
+  - name: 'gcr.io/*****/terraform:0.11.14'
+    id: Terraform Workspace select
+    entrypoint: terraform
+    dir: terraform
+    args: [
+      'workspace',
+      'select',
+      'your workspace'
+    ]
+  - name: 'gcr.io/*****/terraform:0.11.14'
+    id: Terraform Get
+    entrypoint: terraform
+    dir: terraform
+    args: ['get']
+  - name: 'gcr.io/*****/terraform:0.11.14'
+    id: Terraform Destroy to NAT Gateway
+    entrypoint: terraform
+    dir: terraform
+    args: [
+      'destroy',
+      '-target=google_compute_router_nat.loadtest',
+      '--auto-approve',
+      '-var',
+      'target_project=${_TARGET_PROJECT}'
+    ]
+  - name: 'gcr.io/*****/terraform:0.11.14'
+    id: Terraform Destroy to Router
+    entrypoint: terraform
+    dir: terraform
+    args: [
+      'destroy',
+      '-target=google_compute_router.loadtest',
+      '--auto-approve',
+      '-var',
+      'target_project=${_TARGET_PROJECT}'
+    ]
+  - name: 'gcr.io/*****/terraform:0.11.14'
+    id: Terraform Destroy to External IP
+    entrypoint: terraform
+    dir: terraform
+    args: [
+      'destroy',
+      '-target=google_compute_address.loadtest-nat',
+      '--auto-approve',
+      '-var',
+      'target_project=${_TARGET_PROJECT}'
+    ]
+  - name: 'gcr.io/*****/terraform:0.11.14'
+    id: Terraform Destroy to GKE
+    entrypoint: terraform
+    dir: terraform
+    args: [
+      'destroy',
+      '-target=google_container_cluster.loadtest',
+      '--auto-approve',
+      '-var',
+      'target_project=${_TARGET_PROJECT}'
+    ]
+  - name: 'gcr.io/*****/terraform:0.11.14'
+    id: Terraform Destroy to Firewall
+    entrypoint: terraform
+    dir: terraform
+    args: [
+      'destroy',
+      '-target=google_compute_firewall.allow-loadtest-nat-to-targethost',
+      '--auto-approve',
+      '-var',
+      'target_project=${_TARGET_PROJECT}'
+    ]
+substitutions:
+  _TARGET_PROJECT: your project
+timeout: 3600s

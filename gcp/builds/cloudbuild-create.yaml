@@ -1,0 +1,66 @@
+steps:
+  - name: 'gcr.io/*****/terraform:0.11.14'
+    id: Terraform Init
+    entrypoint: terraform
+    dir: terraform
+    args: ['init']
+  - name: 'gcr.io/*****/terraform:0.11.14'
+    id: Terraform Workspace select
+    entrypoint: terraform
+    dir: terraform
+    args: [
+      'workspace',
+      'select',
+      'your workspace'
+    ]
+  - name: 'gcr.io/*****/terraform:0.11.14'
+    id: Terraform Get
+    entrypoint: terraform
+    dir: terraform
+    args: ['get']
+  - name: 'gcr.io/*****/terraform:0.11.14'
+    id: Terraform Plan
+    entrypoint: terraform
+    dir: terraform
+    args: [
+      'plan'
+      '-var',
+      'target_project=${_TARGET_PROJECT}'
+    ]
+  - name: 'gcr.io/*****/terraform:0.11.14'
+    id: Terraform Apply
+    entrypoint: terraform
+    dir: terraform
+    args: [
+      'apply',
+      '--auto-approve',
+      '-var',
+      'target_project=${_TARGET_PROJECT}'
+    ]
+  - name: 'gcr.io/cloud-builders/gcloud'
+    id: GCloud GKE Get Credentials
+    entrypoint: gcloud
+    dir: k8s/manifests
+    args: [
+      'beta',
+      'container',
+      'clusters',
+      'get-credentials',
+      'your cluster',
+      '--region',
+      'asia-northeast1',
+      '--project',
+      'your current project'
+    ]
+  - name: 'gcr.io/cloud-builders/kubectl'
+    id: Kubenetes Control Apply
+    entrypoint: kubectl
+    dir: k8s/manifests
+    args: [
+      'apply',
+      '-f',
+      '.'
+    ]
+substitutions:
+  _TARGET_PROJECT: your project
+timeout: 3600s
